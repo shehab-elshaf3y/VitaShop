@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة إحصائيات منظومة Vita Shop</title>
+    <style>
+        :root {
+            --primary-green: #047857; 
+            --dark-green: #065f46;
+            --bg-light: #f4f7f5;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 20px;
+            color: #2d3748;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border-bottom: 4px solid var(--primary-green);
+        }
+        .header h1 {
+            margin: 0;
+            color: var(--primary-green);
+            font-size: 24px;
+        }
+        .header p {
+            color: #718096;
+            margin: 5px 0 0 0;
+        }
+        .refresh-btn {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+        .refresh-btn:hover {
+            background-color: var(--dark-green);
+        }
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: var(--primary-green);
+            margin: 40px 0;
+            font-weight: bold;
+        }
+        .employee-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            border-right: 6px solid var(--primary-green);
+            display: flex;
+            flex-direction: column;
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+        .employee-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a202c;
+        }
+        .total-badge {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+        }
+        .type-badge {
+            background: #edf2f7;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .type-name {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .type-count {
+            background: var(--primary-green);
+            color: white;
+            min-width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .dispute-alert {
+            background-color: #fff5f5;
+            color: #e53e3e;
+            border: 1px dashed #fed7d7;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📊 لوحة إحصائيات إنتاجية الموظفين</h1>
+        <p>متابعة فورية لعدد العمليات المحسوبة لكل مسجِّل وتفاصيل أنواعها</p>
+        <button class="refresh-btn" onclick="fetchStats()">تحديث البيانات الآن 🔄</button>
+    </div>
+
+    <div id="loadingStatus" class="loading">جاري سحب البيانات الفورية وتحليلها من الـ Google Sheet...</div>
+    
+    <div id="dashboardContent"></div>
+</div>
+
+<script>
+    // ⚠️ ضع هنا رابط الـ Web App الجديد الخاص بك (نفس الرابط الموجود بصفحة الـ index)
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzNVb83i3y94zw5MDIVCcze26GLSXzcyl4FQ-uBGbXCKH3cKCmIWJUyKPDrNknatfWX/exec';
+
+    function fetchStats() {
+        const loading = document.getElementById('loadingStatus');
+        const content = document.getElementById('dashboardContent');
+        
+        loading.style.display = 'block';
+        content.innerHTML = '';
+
+        fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (Object.keys(data).length === 0) {
+                    content.innerHTML = '<div style="text-align:center;color:#718096;">لا توجد أي عمليات مسجلة في الشيت حالياً.</div>';
+                    return;
+                }
+
+                // بناء كروت الموظفين برمجياً
+                for (const employee in data) {
+                    const empData = data[employee];
+                    
+                    let cardHtml = `
+                        <div class="employee-card">
+                            <div class="card-top">
+                                <div class="employee-name">👤 ${employee}</div>
+                                <div class="total-badge">إجمالي العمليات: ${empData.totalOperations}</div>
+                            </div>
+                            <div class="details-grid">
+                    `;
+
+                    // إضافة أنواع الحالات وتكرارها
+                    for (const caseType in empData.caseTypes) {
+                        cardHtml += `
+                            <div class="type-badge">
+                                <span class="type-name">${caseType}</span>
+                                <span class="type-count">${empData.caseTypes[caseType]}</span>
+                            </div>
+                        `;
+                    }
+
+                    cardHtml += `</div>`;
+
+                    // إذا كان للموظف حالات عليها نزاع نعرض تنبيه
+                    if (empData.disputesCount > 0) {
+                        cardHtml += `
+                            <div>
+                                <span class="dispute-alert">⚠️ يمتلك هذا الموظف عدد (${empData.disputesCount}) مهمة تحت بند نزاع وتكرار (يرجى مراجعة الشيت)</span>
+                            </div>
+                        `;
+                    }
+
+                    cardHtml += `</div>`;
+                    content.innerHTML += cardHtml;
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                content.innerHTML = '<div style="text-align:center;color:#e53e3e;font-weight:bold;">❌ فشل في جلب البيانات، تأكد من عمل Deploy للـ Script بشكل صحيح كـ Anyone.</div>';
+                console.error('Error fetching data:', error);
+            });
+    }
+
+    // تشغيل الجلب تلقائياً عند فتح الصفحة لأول مرة
+    window.onload = fetchStats;
+</script>
+
+</body>
+</html>
