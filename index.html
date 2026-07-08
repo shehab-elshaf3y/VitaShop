@@ -7,17 +7,14 @@
     
     <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
     <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
-    
     <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
-    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Vita Shop">
     <meta name="apple-mobile-web-app-status-bar-style" content="#047857">
     <style>
-        /* الألوان الرئيسية: الأبيض والأخضر النظيف */
         :root {
-            --primary-green: #047857; /* أخضر زمردي احترافي */
+            --primary-green: #047857; 
             --dark-green: #065f46;
             --light-green: #e6f4ea;
             --bg-white: #ffffff;
@@ -32,7 +29,6 @@
             padding: 0;
         }
 
-        /* --- شاشة الترحيب الافتتاحية --- */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -84,7 +80,6 @@
             background-color: var(--dark-green);
         }
 
-        /* --- الواجهة الرئيسية للفورم --- */
         #main-content {
             display: none;
             padding: 20px 15px;
@@ -99,7 +94,6 @@
             border-top: 5px solid var(--primary-green);
         }
         
-        /* لوجو الشركة أعلى الفورم */
         .company-header {
             text-align: center;
             margin-bottom: 25px;
@@ -219,6 +213,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label>اسم المستشفى</label>
+                    <input type="text" name="hospitalName" placeholder="اكتب اسم المستشفى هنا" required>
+                </div>
+
+                <div class="form-group">
                     <label>اسم الشخص (المسجِّل)</label>
                     <input type="text" name="personName" placeholder="اكتب اسمك هنا يدوياً" required>
                 </div>
@@ -226,7 +225,6 @@
 
             <div class="form-section">
                 <div class="section-title">نوع الرحلة | Trip Type</div>
-
                 <div class="form-group">
                     <label>نوع الرحلة</label>
                     <select name="caseReturn" required>
@@ -241,7 +239,6 @@
 
             <div class="form-section">
                 <div class="section-title">نوع المهمة | Task Type</div>
-
                 <div class="form-group">
                     <label>نوع المهمة</label>
                     <select name="stockPrep" required>
@@ -270,8 +267,8 @@
         }, 500);
     }
 
-    // رابط الـ Web App الخاص بك للتحقق والتسجيل في الجوجل شيت
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxe1izDO3PaDbdNAtJ7jnio_xzd5Eu6bHbdbpOb7KMoYYCU6lfo6mGqHxNn2GzxJNey/exec';
+    // رابط الـ Web App الخاص بك للربط بالجوجل شيت 
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbx0jJ-BczdmjacKaPTTMpTOM_rVm7BaIZQ7hG7TL7Ghgz7wOCie8imdkM_6q5fZsPe2/exec'; [cite: 51]
 
     const form = document.getElementById('operationForm');
     const btn = document.getElementById('submitBtn');
@@ -285,7 +282,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.result === 'success') {
-                    alert('✅ تم تسجيل العملية بنجاح في المنظومة الرقمية!');
+                    alert('✅ تم تسجيل العملية والمستشفى بنجاح في المنظومة الرقمية!');
                     form.reset();
                 } else if (data.result === 'invalid_op') {
                     alert('❌ خطأ: رقم الـ OP هذا غير مدرج في جدول الأرقام المعتمدة بالإكسيل! يرجى التأكد وكتابته بشكل صحيح.');
