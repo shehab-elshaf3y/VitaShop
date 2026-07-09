@@ -236,7 +236,8 @@
 
                 <div class="form-group">
                     <label>الرقم السري الخاص بك (PIN)</label>
-                    <input type="password" name="userPin" placeholder="أدخل الـ PIN المكون من 4 أرقام" inputmode="numeric" maxlength="4" required>
+                    <!-- التعديل بجعل الحد الأقصى والأدنى 6 خانات -->
+<input type="password" id="pinInput" minlength="6" maxlength="6" pattern="\d{6}" placeholder="أدخل الرقم السري المكون من 6 أرقام" required>
                 </div>
             </div>
 
