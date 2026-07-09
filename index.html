@@ -235,7 +235,7 @@
 
                 <div class="form-group">
                     <label>الرقم السري الخاص بك (PIN)</label>
-                    <input type="password" id="pinInput" name="pin" minlength="6" maxlength="6" pattern="\d{6}" placeholder="أدخل الرقم السري المكون من 6 أرقام" required>
+                    <input type="password" id="pinInput" minlength="6" maxlength="6" pattern="\d{6}" placeholder="أدخل الرقم السري المكون من 6 أرقام" required>
                 </div>
             </div>
 
@@ -275,7 +275,6 @@
 </div>
 
 <script>
-    // 1. دالة الدخول المستقلة والآمنة لتشغيل الـ Splash Screen
     function startApp() {
         document.getElementById('splash-screen').style.opacity = '0';
         setTimeout(function() {
@@ -284,18 +283,15 @@
         }, 500);
     }
 
-    // 2. رابط جوجل سكريبت النشط والمصحح
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwXGyftE7MtDAFWtnC3CB3aaoDrbdOtKlWhdF0ZP0c8vdypdk3zcT1rIxfYpXkt0qC8/exec';
 
     const form = document.getElementById('operationForm');
     const btn = document.getElementById('submitBtn');
 
-    // 3. مراقبة إرسال الفورم والتحقق الأمني
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // جلب قيمة الـ PIN والتأكد من طولها
-        const pinInput = document.getElementById('pinInput');
+        const pinInput = document.getElementById('pinInput') || document.getElementById('pin');
         const pinValue = pinInput ? pinInput.value.trim() : "";
         
         if (pinValue.length !== 6) {
@@ -307,8 +303,9 @@
         btn.innerText = '🔄 جاري التحقق الأمني وحفظ البيانات...';
         
         const formData = new FormData(form);
-        // حقن الـ PIN داخل الحزمة المرسلة غصباً عن المتصفح والكاش
-        formData.set('pin', pinValue);
+        
+        // 🔥 تم الإصلاح هنا: تغيير اسم المتغير إلى userPin ليتطابق تماماً مع السيرفر
+        formData.set('userPin', pinValue);
         
         fetch(scriptURL, { method: 'POST', body: formData })
             .then(function(response) { return response.json(); })
