@@ -291,25 +291,26 @@
     const form = document.getElementById('operationForm');
     const btn = document.getElementById('submitBtn');
 
-    form.addEventListener('submit', function(e) {
+  form.addEventListener('submit', function(e) {
   e.preventDefault();
   
-  // 1. تجهيز بيانات الفورم وجلب قيمة الـ PIN منها
-  // (تأكد أن حقل الـ PIN في الـ HTML مأخد name="pin" أو غير الكلمة هنا حسب الاسم عندك)
-  const formData = new FormData(form);
-  const pinValue = formData.get('pin'); 
+  // قراءة الرقم السري بالـ ID مباشرة (تأكد أن الـ ID في الـ HTML عندك هو pinInput أو عدله هنا)
+  const pinInput = document.getElementById('pinInput') || document.getElementById('pin');
+  const pinValue = pinInput ? pinInput.value.trim() : "";
   
-  // 2. شرط التحقق من الـ 6 خانات
-  if (!pinValue || pinValue.length !== 6) {
+  // شرط الفحص الصارم
+  if (pinValue.length !== 6) {
     alert('❌ عذراً، يجب أن يتكون الرقم السري من 6 أرقام بالظبط!');
-    return; // السطر ده سحري، بيقفل الدالة فوراً ويمنع الكود إنه يكمل للـ fetch
+    return; // يوقف الإرسال فوراً
   }
   
-  // لو الـ PIN سليم ومكون من 6 خانات، الكود هيكمل طبيعي هنا:
+  // لو تمام ومكون من 6 خانات، يكمل الإرسال طبيعي
   btn.disabled = true;
   btn.innerText = '🔄 جاري التحقق الأمني وحفظ البيانات...';
   
-  fetch(scriptURL, { method: 'POST', body: formData }) // هنا بنمرر الـ formData الجاهزة مباشرة)
+  const formData = new FormData(form);
+  fetch(scriptURL, { method: 'POST', body: formData })
+  // ... باقي كود الـ fetch بتاعك زي ما هو تحت
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 if (data.result === 'success') {
