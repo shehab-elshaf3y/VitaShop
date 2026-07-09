@@ -275,6 +275,7 @@
 </div>
 
 <script>
+    // 1. دالة الدخول المستقلة والآمنة لتشغيل الـ Splash Screen
     function startApp() {
         document.getElementById('splash-screen').style.opacity = '0';
         setTimeout(function() {
@@ -283,31 +284,30 @@
         }, 500);
     }
 
+    // 2. رابط جوجل سكريبت النشط والمصحح
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwXGyftE7MtDAFWtnC3CB3aaoDrbdOtKlWhdF0ZP0c8vdypdk3zcT1rIxfYpXkt0qC8/exec';
 
     const form = document.getElementById('operationForm');
     const btn = document.getElementById('submitBtn');
 
+    // 3. مراقبة إرسال الفورم والتحقق الأمني
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // قراءة الرقم السري بالـ ID مباشرة وبشكل آمن
-        const pinInput = document.getElementById('pinInput') || document.getElementById('pin');
+        // جلب قيمة الـ PIN والتأكد من طولها
+        const pinInput = document.getElementById('pinInput');
         const pinValue = pinInput ? pinInput.value.trim() : "";
         
-        // شرط فحص طول الـ PIN ليكون 6 خانات بالتمام
         if (pinValue.length !== 6) {
             alert('❌ عذراً، يجب أن يتكون الرقم السري من 6 أرقام بالظبط!');
-            return; // يوقف الإرسال فوراً
+            return; 
         }
         
-        // لو تمام ومكون من 6 خانات، يكمل الإرسال طبيعي
         btn.disabled = true;
         btn.innerText = '🔄 جاري التحقق الأمني وحفظ البيانات...';
         
         const formData = new FormData(form);
-        
-        // 🔥 حقن الـ PIN برمجياً داخل الـ FormData لضمان وصوله للـ Apps Script بنسبة 100%
+        // حقن الـ PIN داخل الحزمة المرسلة غصباً عن المتصفح والكاش
         formData.set('pin', pinValue);
         
         fetch(scriptURL, { method: 'POST', body: formData })
@@ -317,4 +317,26 @@
                     alert('✅ ممتاز! تم التحقق من هويتك وتسجيل المهمة بنجاح وحفظ النسبة الخاصة بك.');
                     form.reset();
                 } else if (data.result === 'invalid_pin') {
-                    alert('❌ خطأ أمني: الرقم السري (PIN) الخاص بهذا الاسم غير صحيح! يرج
+                    alert('❌ خطأ أمني: الرقم السري (PIN) الخاص بهذا الاسم غير صحيح! يرجى إعادة المحاولة.');
+                } else if (data.result === 'invalid_op') {
+                    alert('❌ خطأ: رقم الـ OP هذا غير مدرج في جدول الأرقام المعتمدة!');
+                } else if (data.result === 'dispute_detected') {
+                    alert('⚠️ تنبيه أمني عاجل:\n\nهذه المهمة مسجلة بالفعل باسم زميل آخر في المنظومة!\n\nتم قبول إدخالك وحفظه، وتلقائياً تم إرسال إشعار فوري للإدارة عبر تليجرام، وتم تحويل حالة المهمة بالكامل تحت بند (تكرار ونزاع علني) لمراجعة الأوراق وتحديد صاحب النسبة.');
+                    form.reset();
+                } else {
+                    alert('حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.');
+                }
+                btn.disabled = false;
+                btn.innerText = 'تأكيد الحفظ وإرسال البيانات';
+            })
+            .catch(function(error) {
+                alert('حدث خطأ أثناء الاتصال بالخادم، برجاء المحاولة مرة أخرى.');
+                console.error('Error!', error.message);
+                btn.disabled = false;
+                btn.innerText = 'تأكيد الحفظ وإرسال البيانات';
+            });
+    });
+</script>
+
+</body>
+</html>
