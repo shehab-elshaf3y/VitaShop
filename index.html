@@ -219,7 +219,6 @@
                     <input type="text" name="hospitalName" placeholder="اكتب اسم المستشفى هنا" required>
                 </div>
 
-                <!-- تم تنظيف الأسماء من أي مسافات زائدة في الخلف لضمان مطابقة الـ Apps Script -->
                 <div class="form-group">
                     <label>اسم الشخص (المسجِّل)</label>
                     <select name="personName" required>
@@ -236,8 +235,7 @@
 
                 <div class="form-group">
                     <label>الرقم السري الخاص بك (PIN)</label>
-                    <!-- التعديل بجعل الحد الأقصى والأدنى 6 خانات -->
-<input type="password" id="pinInput" minlength="6" maxlength="6" pattern="\d{6}" placeholder="أدخل الرقم السري المكون من 6 أرقام" required>
+                    <input type="password" id="pinInput" name="pin" minlength="6" maxlength="6" pattern="\d{6}" placeholder="أدخل الرقم السري المكون من 6 أرقام" required>
                 </div>
             </div>
 
@@ -285,58 +283,38 @@
         }, 500);
     }
 
-    // ✅ تم إصلاح الرابط برمجياً ليكون سطر واحد مستقيم وبدون أخطاء
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwXGyftE7MtDAFWtnC3CB3aaoDrbdOtKlWhdF0ZP0c8vdypdk3zcT1rIxfYpXkt0qC8/exec';
 
     const form = document.getElementById('operationForm');
     const btn = document.getElementById('submitBtn');
 
-  form.addEventListener('submit', function(e) {
-  e.preventDefault();
-  
-  // قراءة الرقم السري بالـ ID مباشرة (تأكد أن الـ ID في الـ HTML عندك هو pinInput أو عدله هنا)
-  const pinInput = document.getElementById('pinInput') || document.getElementById('pin');
-  const pinValue = pinInput ? pinInput.value.trim() : "";
-  
-  // شرط الفحص الصارم
-  if (pinValue.length !== 6) {
-    alert('❌ عذراً، يجب أن يتكون الرقم السري من 6 أرقام بالظبط!');
-    return; // يوقف الإرسال فوراً
-  }
-  
-  // لو تمام ومكون من 6 خانات، يكمل الإرسال طبيعي
-  btn.disabled = true;
-  btn.innerText = '🔄 جاري التحقق الأمني وحفظ البيانات...';
-  
-  const formData = new FormData(form);
-  fetch(scriptURL, { method: 'POST', body: formData })
-  // ... باقي كود الـ fetch بتاعك زي ما هو تحت
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // قراءة الرقم السري بالـ ID مباشرة وبشكل آمن
+        const pinInput = document.getElementById('pinInput') || document.getElementById('pin');
+        const pinValue = pinInput ? pinInput.value.trim() : "";
+        
+        // شرط فحص طول الـ PIN ليكون 6 خانات بالتمام
+        if (pinValue.length !== 6) {
+            alert('❌ عذراً، يجب أن يتكون الرقم السري من 6 أرقام بالظبط!');
+            return; // يوقف الإرسال فوراً
+        }
+        
+        // لو تمام ومكون من 6 خانات، يكمل الإرسال طبيعي
+        btn.disabled = true;
+        btn.innerText = '🔄 جاري التحقق الأمني وحفظ البيانات...';
+        
+        const formData = new FormData(form);
+        
+        // 🔥 حقن الـ PIN برمجياً داخل الـ FormData لضمان وصوله للـ Apps Script بنسبة 100%
+        formData.set('pin', pinValue);
+        
+        fetch(scriptURL, { method: 'POST', body: formData })
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 if (data.result === 'success') {
                     alert('✅ ممتاز! تم التحقق من هويتك وتسجيل المهمة بنجاح وحفظ النسبة الخاصة بك.');
                     form.reset();
                 } else if (data.result === 'invalid_pin') {
-                    alert('❌ خطأ أمني: الرقم السري (PIN) الخاص بهذا الاسم غير صحيح! يرجى إعادة المحاولة.');
-                } else if (data.result === 'invalid_op') {
-                    alert('❌ خطأ: رقم الـ OP هذا غير مدرج في جدول الأرقام المعتمدة!');
-                } else if (data.result === 'dispute_detected') {
-                    alert('⚠️ تنبيه أمني عاجل:\n\nهذه المهمة مسجلة بالفعل باسم زميل آخر في المنظومة!\n\nتم قبول إدخالك وحفظه، وتلقائياً تم إرسال إشعار فوري للإدارة عبر تليجرام، وتم تحويل حالة المهمة بالكامل تحت بند (تكرار ونزاع علني) لمراجعة الأوراق وتحديد صاحب النسبة.');
-                    form.reset();
-                } else {
-                    alert('حدث خطأ غير متوقع، يرجى المحاولة لاحقاً.');
-                }
-                btn.disabled = false;
-                btn.innerText = 'تأكيد الحفظ وإرسال البيانات';
-            })
-            .catch(function(error) {
-                alert('حدث خطأ أثناء الاتصال بالخادم، برجاء المحاولة مرة أخرى.');
-                console.error('Error!', error.message);
-                btn.disabled = false;
-                btn.innerText = 'تأكيد الحفظ وإرسال البيانات';
-            });
-    });
-</script>
-
-</body>
-</html>
+                    alert('❌ خطأ أمني: الرقم السري (PIN) الخاص بهذا الاسم غير صحيح! يرج
